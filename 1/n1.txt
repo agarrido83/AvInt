@@ -13,4 +13,4 @@ Pregunta.
 Opción 1
 Opción 2
 
-(Escribe el número de la opción correspondiente):
+(Escribe el número de la opción correspondiente)

@@ -95,7 +95,7 @@ class AvInt extends SBApp
 						$aventura = substr($comando,8,1);
 						if( $res = $this->iniciaPartida($aventura) ) {
 							// Muestro el nodo 1
-							if(!($res = $this->continuaPartida($aventura))) {
+							if(!($res = $this->continuaPartida())) {
 								$this->terminaPartida();
 							}
 						}
@@ -121,20 +121,30 @@ class AvInt extends SBApp
 						$res = "No tienes ninguna partida en curso. No hay nada que continuar.";
 					} else {
 						// Muestra el nodo actual
-						$res = $this->continuaPartida($res);
+						$res = $this->continuaPartida();
 					}
 				}
 				break;
 
-			case '1':
-			case '2':
+			case 'avanzar 1':
+			case 'avanzar 2':
 				// Compruebo si el usuario tiene alguna partida a medio...
 				if($res = $this->partidaActual($this->sbUserSBCode)) {
 					if($res == -1) {
 						$res = "No tienes ninguna partida en curso. No hay nada que continuar.";
 					} else {
-						// Avanza de nodo y lo muestra
-						$res = $this->avanzaPartida($res, $comando);
+						if($res = $this->esNodoHoja()) {
+							if($res != -1) {
+								$res = "Has llegado al final de tu aventura.\n\n".
+									   "Escribe 'fin' si deseas terminar la partida...";
+								break;
+							}
+							if($res == -1) {
+								// Avanza de nodo y lo muestra
+								$res = $this->avanzaPartida(substr($comando,8,1));
+								break;
+							}
+						}
 					}
 				}
 				break;
@@ -226,7 +236,7 @@ class AvInt extends SBApp
 		}
 
 		// Inicializo los datos de la nueva partida...
-		$query = "INSERT INTO Partidas VALUES ('{$this->sbUserSBCode}','{$aventura_}',1,NOW(),NOW())";
+		$query = "INSERT INTO Partidas VALUES ('{$this->sbUserSBCode}',{$aventura_},1,NOW(),NOW())";
 
 		if(!($result = $mysqli->query($query))) {
 
@@ -296,7 +306,7 @@ class AvInt extends SBApp
 		}
 
 		// Hago la consulta...
-		$query = "SELECT * FROM Aventuras WHERE id_aventura = '{$id_aventura_}'";
+		$query = "SELECT * FROM Aventuras WHERE id_aventura = {$id_aventura_}";
 
 		if(!($result = $mysqli->query($query))) {
 			$mysqli->close();
@@ -349,17 +359,18 @@ class AvInt extends SBApp
 	 * continuaPartida
 	 * 	@Def.: Esta función devuelve el texto asociado al nodo actual de la 
 	 * 			partida en curso.
-	 * 	@Param:
-	 * 		- $aventura_: Aventura del nodo actual.
+	 * 	@Param: N/A.
 	 * 	@Return: 
 	 * 		-El texto asociado al nodo actual, si todo ha ido bien.
 	 * 		-'False', si ha habido algún error.
 	 * **************************************************************************/
-	private function continuaPartida($aventura_)
+	private function continuaPartida()
 	{
 		$texto = False;
 		if($nodoActual = $this->nodoActual()) {
-			$texto = $this->muestraNodo($nodoActual["nodo"],$aventura_);
+			$idNodo = $nodoActual["id_nodo"];
+			$idAventura = $nodoActual["id_aventura"];
+			$texto = $this->muestraNodo($idNodo,$idAventura);
 		}
 		return $texto;
 	}
@@ -368,33 +379,36 @@ class AvInt extends SBApp
 	 * avanzaPartida
 	 * 	@Def.: Esta función actualiza el nodo actual y lo muestra.
 	 * 	@Param:
-	 * 		- $aventura_: Aventura del nodo actual.
 	 * 		- $opcion_: Opción elegida.
 	 * 	@Return: 
 	 * 		-El texto asociado al nuevo nodo actual, si todo ha ido bien.
 	 * 		-'False', si ha habido algún error.
 	 * **************************************************************************/
-	private function avanzaPartida($aventura_, $opcion_)
+	private function avanzaPartida($opcion_)
 	{
 		$texto = False;
 		if($nodoActual = $this->nodoActual()) {
+
 			if($opcion_ == 1) {
-				$idNodoHijo = $nodoActual_["opcion_1"];
+				$idNodoHijo = $nodoActual["opcion_1"];
 			}
 			else if($opcion_ == 2) {
-				$idNodoHijo = $nodoActual_["opcion_2"];
+				$idNodoHijo = $nodoActual["opcion_2"];
 			} else {
 				return False;
 			}
-			$idNodoAnt = $nodoActual_["nodo"];
+
+			$idNodoAnt = $nodoActual["id_nodo"];
 			if($this->actualizaNodoActual($idNodoHijo)) {
-				if(!($texto = $this->muestraNodo($idNodoHijo))) {
+				if(!($texto = $this->continuaPartida())) {
 					$this->actualizaNodoActual($idNodoAnt);
 				}
 			}
 		}
 		return $texto;
 	}
+	
+	/* Funciones para gestionar los nodos */
 
 	/*****************************************************************************
 	 * nodoActual
@@ -421,9 +435,24 @@ class AvInt extends SBApp
 			return False;
 
 		}
-
 		$row = $result->fetch_assoc();
 		$result->close();
+
+		$nodo = $row["nodo"];
+		$aventura = $row["aventura"];
+
+		// Extraigo su información del Itineraio
+		$query = "SELECT * FROM Itinerario WHERE id_nodo = {$nodo} and id_aventura = {$aventura}";
+
+		if(!($result = $mysqli->query($query))) {
+
+			$mysqli->close();
+			return False;
+
+		}
+		$row = $result->fetch_assoc();
+		$result->close();
+
 		$mysqli->close();
 
 		return $row;
@@ -433,15 +462,15 @@ class AvInt extends SBApp
 	 * muestraNodo
 	 * 	@Def.: Esta función devuelve el texto asociado al nodo dado.
 	 * 	@Param:
-	 * 		- $nodo_: Nodo a mostrar.
+	 * 		- $idNodo_: Id del nodo a mostrar.
 	 * 		- $aventura_: Aventura a la que pertenece el nodo.
 	 * 	@Return: 
 	 * 		-El texto asociado al nodo, si todo ha ido bien.
 	 * 		-'False', si ha habido algún error.
 	 * **************************************************************************/
-	private function muestraNodo($nodo_, $aventura_)
+	private function muestraNodo($idNodo_, $aventura_)
 	{
-		$fiche = 'http://agarrido83server.zz.mu/AvInt/'.$aventura_.'/n'.$nodo_.'.txt';
+		$fiche = 'http://agarrido83server.zz.mu/AvInt/'.$aventura_.'/n'.$idNodo_.'.txt';
 
 		if(!($canal = fopen($fiche, "r"))) {
 			return False;
@@ -478,18 +507,41 @@ class AvInt extends SBApp
 		}
 
 		// Hago la consulta...
-		$query = "UPDATE Partidas SET nodo = '{$idNuevoNodoActual}' WHERE id_jugador = '{$this->sbUserSBCode}'";
+		$query = "UPDATE Partidas SET nodo = {$idNuevoNodoActual_}, fecha_actu = NOW() ".
+			     "WHERE id_jugador = '{$this->sbUserSBCode}'";
 
 		if(!($result = $mysqli->query($query))) {
+		
+			$this->replyOrFalse("k");
 
 			$mysqli->close();
 			return False;
 
 		}
-		$result->close();
 		$mysqli->close();
 
 		return True;
+	}
+
+	/*****************************************************************************
+	 * esNodoHoja
+	 * 	@Def.: Esta función comprueba si el nodo actual es un nodo hoja.
+	 * 	@Param: N/A.
+	 * 	@Return: 
+	 * 		- 'True', si es un nodo hoja.
+	 * 		- '-1', si no es un nodo hoja.
+	 * 		- 'False', si ha habido algún error.
+	 * **************************************************************************/
+	private function esNodoHoja() {
+		$res = False;
+		if($nodoActual = $this->nodoActual()) {
+			if(($nodoActual["opcion_1"] == -1) and ($nodoActual["opcion_2"] == -1)) {
+				$res = True;
+			} else {
+				$res = -1;
+			}
+		}
+		return $res;
 	}
 }
 
