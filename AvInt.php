@@ -95,7 +95,9 @@ class AvInt extends SBApp
 						$aventura = substr($comando,8,1);
 						if( $res = $this->iniciaPartida($aventura) ) {
 							// Muestro el nodo 1
-							// $res = $this->continuaPartida();
+							if(!($res = $this->continuaPartida($aventura))) {
+								$this->terminaPartida();
+							}
 						}
 					}
 				}
@@ -118,21 +120,23 @@ class AvInt extends SBApp
 					if($res == -1) {
 						$res = "No tienes ninguna partida en curso. No hay nada que continuar.";
 					} else {
-						// Muestro el nodo actual
-						//$res = $this->continuaPartida();
-						$res = $comando;
+						// Muestra el nodo actual
+						$res = $this->continuaPartida($res);
 					}
 				}
 				break;
 
 			case '1':
-				// Salta a la opción 1 del capítulo actual
-				$res = $comando;
-				break;
-				
 			case '2':
-				// Salta a la opción 2 del capítulo actual
-				$res = $comando;
+				// Compruebo si el usuario tiene alguna partida a medio...
+				if($res = $this->partidaActual($this->sbUserSBCode)) {
+					if($res == -1) {
+						$res = "No tienes ninguna partida en curso. No hay nada que continuar.";
+					} else {
+						// Avanza de nodo y lo muestra
+						$res = $this->avanzaPartida($res, $comando);
+					}
+				}
 				break;
 
 			case 'fin':
@@ -327,7 +331,7 @@ class AvInt extends SBApp
 			return False;
 		}
 
-		// Inicializo los datos de la nueva partida...
+		// Borro los datos de partida...
 		$query = "DELETE FROM Partidas WHERE id_jugador = '{$this->sbUserSBCode}'";
 
 		if(!($result = $mysqli->query($query))) {
@@ -336,6 +340,153 @@ class AvInt extends SBApp
 			return False;
 
 		}
+		$mysqli->close();
+
+		return True;
+	}
+
+	/*****************************************************************************
+	 * continuaPartida
+	 * 	@Def.: Esta función devuelve el texto asociado al nodo actual de la 
+	 * 			partida en curso.
+	 * 	@Param:
+	 * 		- $aventura_: Aventura del nodo actual.
+	 * 	@Return: 
+	 * 		-El texto asociado al nodo actual, si todo ha ido bien.
+	 * 		-'False', si ha habido algún error.
+	 * **************************************************************************/
+	private function continuaPartida($aventura_)
+	{
+		$texto = False;
+		if($nodoActual = $this->nodoActual()) {
+			$texto = $this->muestraNodo($nodoActual["nodo"],$aventura_);
+		}
+		return $texto;
+	}
+
+	/*****************************************************************************
+	 * avanzaPartida
+	 * 	@Def.: Esta función actualiza el nodo actual y lo muestra.
+	 * 	@Param:
+	 * 		- $aventura_: Aventura del nodo actual.
+	 * 		- $opcion_: Opción elegida.
+	 * 	@Return: 
+	 * 		-El texto asociado al nuevo nodo actual, si todo ha ido bien.
+	 * 		-'False', si ha habido algún error.
+	 * **************************************************************************/
+	private function avanzaPartida($aventura_, $opcion_)
+	{
+		$texto = False;
+		if($nodoActual = $this->nodoActual()) {
+			if($opcion_ == 1) {
+				$idNodoHijo = $nodoActual_["opcion_1"];
+			}
+			else if($opcion_ == 2) {
+				$idNodoHijo = $nodoActual_["opcion_2"];
+			} else {
+				return False;
+			}
+			$idNodoAnt = $nodoActual_["nodo"];
+			if($this->actualizaNodoActual($idNodoHijo)) {
+				if(!($texto = $this->muestraNodo($idNodoHijo))) {
+					$this->actualizaNodoActual($idNodoAnt);
+				}
+			}
+		}
+		return $texto;
+	}
+
+	/*****************************************************************************
+	 * nodoActual
+	 * 	@Def.: Esta función devuelve el el nodo actual en la partida en curso.
+	 * 	@Param: N/A.
+	 * 	@Return: 
+	 * 		- 'Nodo actual', si todo ha ido bien.
+	 * 		- 'False', si ha habido algún error.
+	 * **************************************************************************/
+	private function nodoActual()
+	{
+		// Hago la conexión a la base de datos
+		$mysqli = new mysqli('mysql.hostinger.es','u414170863_avent','agarrido83','u414170863_aventura');
+		if($mysqli->connect_error) {
+			return False;
+		}
+
+		// Busco el nodo actual...
+		$query = "SELECT * FROM Partidas WHERE id_jugador = '{$this->sbUserSBCode}'";
+
+		if(!($result = $mysqli->query($query))) {
+
+			$mysqli->close();
+			return False;
+
+		}
+
+		$row = $result->fetch_assoc();
+		$result->close();
+		$mysqli->close();
+
+		return $row;
+	}
+
+	/*****************************************************************************
+	 * muestraNodo
+	 * 	@Def.: Esta función devuelve el texto asociado al nodo dado.
+	 * 	@Param:
+	 * 		- $nodo_: Nodo a mostrar.
+	 * 		- $aventura_: Aventura a la que pertenece el nodo.
+	 * 	@Return: 
+	 * 		-El texto asociado al nodo, si todo ha ido bien.
+	 * 		-'False', si ha habido algún error.
+	 * **************************************************************************/
+	private function muestraNodo($nodo_, $aventura_)
+	{
+		$fiche = 'http://agarrido83server.zz.mu/AvInt/'.$aventura_.'/n'.$nodo_.'.txt';
+
+		if(!($canal = fopen($fiche, "r"))) {
+			return False;
+		}
+		
+		if(substr(($control = fgets($canal)),0,3) != '###') {
+			return False;
+		}
+
+		$texto = "";
+		while ($linea = fgets($canal)) {
+			$texto .= $linea;
+		}
+		fclose($canal);
+
+		return $texto;
+	}
+
+	/*****************************************************************************
+	 * actualizaNodoActual
+	 * 	@Def.: Esta función actualiza el nodo actual de la partida en curso.
+	 * 	@Param:
+	 * 		- $idNuevoNodoActual_: Opción elegida.
+	 * 	@Return: 
+	 * 		- 'True', si todo ha ido bien.
+	 * 		- 'False', si ha habido algún error.
+	 * **************************************************************************/
+	private function actualizaNodoActual($idNuevoNodoActual_)
+	{
+		// Hago la conexión a la base de datos
+		$mysqli = new mysqli('mysql.hostinger.es','u414170863_avent','agarrido83','u414170863_aventura');
+		if($mysqli->connect_error) {
+			return False;
+		}
+
+		// Hago la consulta...
+		$query = "UPDATE Partidas SET nodo = '{$idNuevoNodoActual}' WHERE id_jugador = '{$this->sbUserSBCode}'";
+
+		if(!($result = $mysqli->query($query))) {
+
+			$mysqli->close();
+			return False;
+
+		}
+		$result->close();
 		$mysqli->close();
 
 		return True;
