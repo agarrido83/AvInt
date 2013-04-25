@@ -74,7 +74,7 @@ class AvInt extends SBApp
 		$comando = strtolower($comando_);
 		switch($comando) {
 			case 'menu':
-				// Muestro el menú principal	
+				// Muestra el menú principal	
 				$res = $this->muestraMenu();
 				break;
 
