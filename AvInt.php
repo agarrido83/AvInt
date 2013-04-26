@@ -71,104 +71,128 @@ class AvInt extends SBApp
 	 * **************************************************************************/
 	private function procesaEntrada($comando_)
 	{
+		$salida = False;
 		$comando = strtolower($comando_);
 		switch($comando) {
-			case 'menu':
-				// Muestra el menú principal	
-				$res = $this->muestraMenu();
-				break;
+		case 'menu':
+			// Muestra el menú principal	
+			$salida = $this->muestraMenu();
+			break;
 
-			case 'ayuda':
-				// Muestra la ayuda
-				$res = $comando;
-				break;
+		case 'ayuda':
+			// Muestra la ayuda
+			$salida = $this->muestraAyuda();
+			break;
 
-			case 'iniciar 1':
-				// Compruebo que el usuario no tiene alguna partida a medio...
-				if($res = $this->partidaActual($this->sbUserSBCode)) {
-					if($res != -1) {
-						$res = "Ya tienes una partida a medio en la aventura '".$this->tituloAventura($res)."'.\n".
-					 		   "Sólo se puede jugar una partida simultáneamente.\n\n".
-					 	   	   "Para continuar con la partida, escribe 'continuar'.\n".
-					 	       "Para terminar la partida, escribe 'fin'.";
-					} else {
-						$aventura = substr($comando,8,1);
-						if( $res = $this->iniciaPartida($aventura) ) {
-							// Muestro el nodo 1
-							if(!($res = $this->continuaPartida())) {
-								$this->terminaPartida();
-							}
-						}
+		case 'iniciar 1':
+			// Compruebo que el usuario no tiene alguna partida a medio...
+			$res = $this->partidaActual($this->sbUserSBCode);
+
+			switch ($res) {
+			case 1:
+				$salida = "Ya tienes una partida a medio en la aventura '".$this->tituloAventura($res)."'.\n".
+			 		   	  "Sólo se puede jugar una partida simultáneamente.\n\n".
+			 	   	      "[ Para continuar con la partida, escribe 'continuar'...\n".
+						  "  Para terminar la partida, escribe 'fin'... ]";
+			break;
+
+			case -1:
+				$aventura = substr($comando,8,1);
+				if( $res = $this->iniciaPartida($aventura) ) {
+					if( !($res = $this->continuaPartida()) ) {
+						$this->terminaPartida();
 					}
 				}
+				$salida = $res;
 				break;
 
-			case 'partida':
-				// Compruebo si el usuario tiene alguna partida a medio...
-				if($res = $this->partidaActual($this->sbUserSBCode)) {
-					if($res != -1) {
-						$res = "Actualmente estás jugando en la aventura: '".$this->tituloAventura($res)."'.";
-					} else {
-						$res = "No tienes ninguna partida en curso.";
-					}
-				}
-				break;
+			default:
+				$salida = $res;
+			}
+			break;
+				
+		case 'partida':
+			// Compruebo si el usuario tiene alguna partida a medio...
+			$res = $this->partidaActual($this->sbUserSBCode);
 
-			case 'continuar':
-				// Compruebo si el usuario tiene alguna partida a medio...
-				if($res = $this->partidaActual($this->sbUserSBCode)) {
-					if($res == -1) {
-						$res = "No tienes ninguna partida en curso. No hay nada que continuar.";
-					} else {
-						// Muestra el nodo actual
-						$res = $this->continuaPartida();
-					}
-				}
+			switch ($res) {
+			case -1:
+				$salida = "No tienes ninguna partida en curso.";
 				break;
-
-			case 'avanzar 1':
-			case 'avanzar 2':
-				// Compruebo si el usuario tiene alguna partida a medio...
-				if($res = $this->partidaActual($this->sbUserSBCode)) {
-					if($res == -1) {
-						$res = "No tienes ninguna partida en curso. No hay nada que continuar.";
-					} else {
-						if($res = $this->esNodoHoja()) {
-							if($res != -1) {
-								$res = "Has llegado al final de tu aventura.\n\n".
-									   "Escribe 'fin' si deseas terminar la partida...";
-								break;
-							}
-							if($res == -1) {
-								// Avanza de nodo y lo muestra
-								$res = $this->avanzaPartida(substr($comando,8,1));
-								break;
-							}
-						}
-					}
-				}
+			case 0 :
+				$salida = $res;
 				break;
+			default:
+				$salida = "Actualmente estás jugando en la aventura: '".$this->tituloAventura($res)."'.\n\n".
+					 	  "[ Para continuar con la partida, escribe 'continuar'...\n".
+						  "  Para terminar la partida, escribe 'fin'... ]";
+			}
+			break;
 
-			case 'fin':
-				// Compruebo si el usuario tiene alguna partida a medio...
-				if($res = $this->partidaActual($this->sbUserSBCode)) {
-					if($res == -1) {
-						$res = "No tienes ninguna partida en curso por finalizar.";
-					} else {
-						if( $res = $this->terminaPartida() ) {
-							$res = "Partida finalizada correctamente.";	
-						}
-					}
-				}
+		case 'continuar':
+			// Compruebo si el usuario tiene alguna partida a medio...
+			$res = $this->partidaActual($this->sbUserSBCode);
+
+			switch ($res) {
+			case -1 :
+				$salida = "No tienes ninguna partida en curso. No hay nada que continuar.";
 				break;
-
+			case 0 :
+				$salida = $res;
+				break;
 			default :
-				$res = "Comando incorrecto, escriba 'ayuda' para ver los comandos disponibles...";
+				// Muestra el nodo actual
+				$salida = $this->continuaPartida();
+			}
+			break;
+
+		case 'avanzar 1':
+		case 'avanzar 2':
+			// Compruebo si el usuario tiene alguna partida a medio...
+			$res = $this->partidaActual($this->sbUserSBCode);
+
+			switch ($res) {
+			case -1 :
+				$salida = "No tienes ninguna partida en curso. No hay nada en lo que avanzar.";
+				break;
+			case 0 :
+				$salida = $res;
+				break;
+			default :
+				// Avanza de nodo y lo muestra
+				$salida = $this->avanzaPartida(substr($comando,8,1));
+				break;
+			}	
+			break;
+
+		case 'fin':
+			// Compruebo si el usuario tiene alguna partida a medio...
+			$res = $this->partidaActual($this->sbUserSBCode);
+
+			switch ($res) {
+			case -1 :
+				$salida = "No tienes ninguna partida en curso. No hay nada que finalizar.";
+				break;
+			case 0 :
+				$salida = $res;
+				break;
+			default :
+				if( ($res = $this->terminaPartida()) ) {
+					$salida = "Partida finalizada correctamente.";	
+				} else {
+					$salida = $res;
+				}
+			}
+			break;
+
+		default :
+			$salida = "Comando incorrecto, escribe 'ayuda' para ver los comandos disponibles...";
 		}
-		if($res) {
-			$this->replyOrFalse(utf8_encode($res));
+
+		if($salida) {
+			$this->replyOrFalse(utf8_encode($salida));
 		} else {
-			$this->replyOrFalse(utf8_encode("Ha ocurrido algún error. Inténtelo más adelante."));
+			$this->replyOrFalse(utf8_encode("Ha ocurrido algún error. Inténtalo más adelante."));
 		}
 	}
 
@@ -182,7 +206,7 @@ class AvInt extends SBApp
 	 * **************************************************************************/
 	private function muestraMenu()
 	{
-		$texto = False;
+		$texto = "En estos momentos no hay aventuras disponibles.";
 
 		// Hago la conexión a la base de datos
 		$mysqli = new mysqli('mysql.hostinger.es','u414170863_avent','agarrido83','u414170863_aventura');
@@ -195,9 +219,7 @@ class AvInt extends SBApp
 
 		if($result = $mysqli->query($query)) {
 
-			if(($num_rows = $result->num_rows) == 0) {
-				$texto = "En estos momentos no hay aventuras disponibles.";
-			} else {	
+			if(($num_rows = $result->num_rows) != 0) {			
 				$texto = "Aventuras disponibles: \n\n";
 
 				$contador = 0;
@@ -208,13 +230,33 @@ class AvInt extends SBApp
 						$texto .= "\n";
 					}
 				}
-				$texto .= "Escriba 'iniciar' seguido del número correspondiente para comenzar la aventura...\n".
-				  		  "(Ejemplo: 'iniciar 1')";
+				$texto .= "[ Escribe 'iniciar [n]' siendo [n] el número correspondiente a la aventura... ]\n";
 			}
 			$result->close();
 		}
 		$mysqli->close();
 
+		return $texto;
+	}
+
+	/*****************************************************************************
+	 * muestraAyuda
+	 * 	@Def.: Esta función devuelve el texto de la ayuda.
+	 * 	@Param: N/A
+	 * 	@Return: 
+	 * 		- Cadena con el texto de la ayuda, si todo ha dido bien.
+	 * 		- 'False', si ha habido algún error.
+	 * **************************************************************************/
+	private function muestraAyuda()
+	{
+		$texto = "COMANDOS DISPONIBLES\n\n".
+				 "menu -> Muestra el menu de aventuras.\n".
+				 "ayuda -> Muestra esta ayuda.\n".
+				 "iniciar [n] -> Inicia partida de la aventura [n].\n".
+				 "partida -> Muestra la aventura de la partida en curso.\n".
+				 "continuar -> Continua la partida en curso.\n".
+				 "avanzar [n] -> Avanza por la opción [n] en la partida.\n".
+				 "fin -> Termina la partida actual.";
 		return $texto;
 	}
 
@@ -255,11 +297,12 @@ class AvInt extends SBApp
 	 * 		- $sbUserSBCode_: Id del jugador.
 	 * 	@Return: 
 	 * 		- '[id_aventura]', si hay alguna partida en curso.
-	 * 		- '-1' si no hay ninguna partida en curso.
 	 * 		- 'False', si ha habido algún error.
 	 * **************************************************************************/
 	private function partidaActual($sbUserSBCode_)
 	{
+		$res = -1;
+
 		// Hago la conexión a la base de datos
 		$mysqli = new mysqli('mysql.hostinger.es','u414170863_avent','agarrido83','u414170863_aventura');
 		if($mysqli->connect_error) {
@@ -278,9 +321,7 @@ class AvInt extends SBApp
 		if($result->num_rows != 0) {
 			$row = $result->fetch_assoc();
 			$res = $row["aventura"];
-		} else {
-			$res = -1;
-		}
+		} 
 		$result->close(); 	
 		$mysqli->close();
 
@@ -294,11 +335,11 @@ class AvInt extends SBApp
 	 * 		- $id_aventura_: Id de la aventura.
 	 * 	@Return: 
 	 * 		- '[nombre]', si existe la aventura con id dada.
-	 * 		-' "" ' si no exista la partida con id dada.
-	 * 		-'False' si ha habido algún error.
+	 * 		- 'False' si ha habido algún error.
 	 * **************************************************************************/
 	private function tituloAventura($id_aventura_)
 	{
+		$res = "";
 		// Hago la conexión a la base de datos
 		$mysqli = new mysqli('mysql.hostinger.es','u414170863_avent','agarrido83','u414170863_aventura');
 		if($mysqli->connect_error) {
@@ -313,9 +354,7 @@ class AvInt extends SBApp
 			return False;
 		}
 
-		if($result->num_rows == 0) {
-			$res = "";
-		} else {
+		if($result->num_rows > 0) {
 			$row = $result->fetch_assoc();
 			$res = $row["titulo"];
 		}
@@ -381,14 +420,21 @@ class AvInt extends SBApp
 	 * 	@Param:
 	 * 		- $opcion_: Opción elegida.
 	 * 	@Return: 
-	 * 		-El texto asociado al nuevo nodo actual, si todo ha ido bien.
-	 * 		-'False', si ha habido algún error.
+	 * 		- El texto asociado al nuevo nodo actual, si todo ha ido bien.
+	 * 		- 'False', si ha habido algún error.
 	 * **************************************************************************/
 	private function avanzaPartida($opcion_)
 	{
-		$texto = False;
-		if($nodoActual = $this->nodoActual()) {
+		$resul = 0;
 
+		$res = $this->esNodoHoja();
+		switch( $res ) {
+		case 0:
+			if( !($nodoActual = $this->nodoActual()) ) {
+				return False;
+			}
+
+			$idNodoAnt = $nodoActual["id_nodo"];
 			if($opcion_ == 1) {
 				$idNodoHijo = $nodoActual["opcion_1"];
 			}
@@ -398,14 +444,20 @@ class AvInt extends SBApp
 				return False;
 			}
 
-			$idNodoAnt = $nodoActual["id_nodo"];
-			if($this->actualizaNodoActual($idNodoHijo)) {
-				if(!($texto = $this->continuaPartida())) {
-					$this->actualizaNodoActual($idNodoAnt);
-				}
+			if( !($this->actualizaNodoActual($idNodoHijo)) ) {
+				return False;
 			}
+			if( !($texto = $this->continuaPartida()) ) {
+				$this->actualizaNodoActual($idNodoAnt);
+			}
+			$resul = $texto;
+			break;
+		
+		case 1:
+			$resul = "Tu aventura ha llegado a su final.\n\n".
+					 "[ Escribe 'fin' para terminar la partida... ]";
 		}
-		return $texto;
+		return $resul;
 	}
 	
 	/* Funciones para gestionar los nodos */
@@ -529,17 +581,14 @@ class AvInt extends SBApp
 	 * 	@Param: N/A.
 	 * 	@Return: 
 	 * 		- 'True', si es un nodo hoja.
-	 * 		- '-1', si no es un nodo hoja.
-	 * 		- 'False', si ha habido algún error.
+	 * 		- 'False', si no es un nodo hoja.
+	 * 		- '-1', si ha habido algún fallo.
 	 * **************************************************************************/
 	private function esNodoHoja() {
-		$res = False;
-		if($nodoActual = $this->nodoActual()) {
-			if(($nodoActual["opcion_1"] == -1) and ($nodoActual["opcion_2"] == -1)) {
-				$res = True;
-			} else {
-				$res = -1;
-			}
+		if( $nodoActual = $this->nodoActual() ) {
+			$res = (($nodoActual["opcion_1"] == -1) and ($nodoActual["opcion_2"] == -1));
+		} else {
+			$res = -1;
 		}
 		return $res;
 	}
