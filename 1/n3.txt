@@ -4,5 +4,3 @@ Nodo 3
 Pregunta:
 Opción 1
 Opción 2
-
-[ Escribe 'avanzar [n]' siendo [n] el número de la opción elegida. ]

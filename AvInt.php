@@ -92,8 +92,8 @@ class AvInt extends SBApp
 			case 1:
 				$salida = "Ya tienes una partida a medio en la aventura '".$this->tituloAventura($res)."'.\n".
 			 		   	  "Sólo se puede jugar una partida simultáneamente.\n\n".
-			 	   	      "[ Para continuar con la partida, escribe 'continuar'...\n".
-						  "  Para terminar la partida, escribe 'fin'... ]";
+			 	   	      "[ Para continuar con la partida, escribe 'continuar' ]\n".
+						  "[ Para terminar la partida, escribe 'fin' ]";
 			break;
 
 			case -1:
@@ -124,8 +124,8 @@ class AvInt extends SBApp
 				break;
 			default:
 				$salida = "Actualmente estás jugando en la aventura: '".$this->tituloAventura($res)."'.\n\n".
-					 	  "[ Para continuar con la partida, escribe 'continuar'...\n".
-						  "  Para terminar la partida, escribe 'fin'... ]";
+					 	  "[ Para continuar con la partida, escribe 'continuar' ]\n".
+						  "[ Para terminar la partida, escribe 'fin' ]";
 			}
 			break;
 
@@ -230,7 +230,7 @@ class AvInt extends SBApp
 						$texto .= "\n";
 					}
 				}
-				$texto .= "[ Escribe 'iniciar [n]' siendo [n] el número correspondiente a la aventura... ]\n";
+				$texto .= "[ Escribe 'iniciar [n]' siendo [n] el número correspondiente a la aventura elegida. ]\n";
 			}
 			$result->close();
 		}
@@ -256,7 +256,8 @@ class AvInt extends SBApp
 				 "partida -> Muestra la aventura de la partida en curso.\n".
 				 "continuar -> Continua la partida en curso.\n".
 				 "avanzar [n] -> Avanza por la opción [n] en la partida.\n".
-				 "fin -> Termina la partida actual.";
+				 "fin -> Termina la partida actual.\n".
+				 "créditos -> Muestra la información de los créditos de la aplicación.";
 		return $texto;
 	}
 
@@ -455,7 +456,7 @@ class AvInt extends SBApp
 		
 		case 1:
 			$resul = "Tu aventura ha llegado a su final.\n\n".
-					 "[ Escribe 'fin' para terminar la partida... ]";
+					 "[ Escribe 'fin' para terminar la partida. ]";
 		}
 		return $resul;
 	}
