@@ -1,0 +1,15 @@
+###
+Poco a poco tu vista se va adaptando a la oscuridad y comienzas a observar que en la piedra pulida de la gruta comienzan a aparecer imperfecciones. Además, el ruido es cada vez mas claro, es un sonido rítmico como el que producen las manos sobre la piel de los tambores, esto te recuerda algo, es como un flas que atraviesa tu mente vacía de recuerdos: 
+
+“Las oscuras figuras giran y giran, parecen seres humanos de no ser por sus cabezas enormes carentes de cuello, los extraños seres humanoides giran y giran haciendo cabriolas y alzándose al cielo, como intentando echar a volar.”
+
+El túnel cada vez más irregular, gira de una forma inverosímil. Parece que ahí justo al girar estarán los tambores. Tu corazón palpita al ritmo de sonido y la humedad fría de la gruta, se mezcla en tu cuerpo desnudo con el sudor que el nerviosismo hace aflorar.
+
+Nada mas girar el sonido de los tambores desaparece y solo queda silencio, y una débil luz al fondo de la gruta.
+
+(1)Continuas avanzando hacia la luz.
+
+(2)Vuelves sobre tus propios pasos y coges el camino contrario.
+
+
+[ Escribe 'Avanzar [n]' siendo [n] el número de la opción escogida ]

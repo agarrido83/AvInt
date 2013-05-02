@@ -1,14 +1,14 @@
 ###
-Y LA LLAMARON MUERTE
+LA CARICIA DEL SOL.
 
-La piedra pulida de la cueva fría, dura e impasible, acaricia tu piel, mientras intentas quitar la tensión de tu cuerpo entumecido y dolorido. Buscarás la ropa y no encontrarás nada más que oscuridad, silencio y olor a tierra y humedad, todo a tú alrededor se convierte en una opresiva prisión. Pero no tan opresiva la necesidad de una caricia, una caricia del sol.
+La piedra pulida de la cueva fría, dura e impasible, acaricia tu piel, mientras intentas quitar la tensión de tu cuerpo entumecido y dolorido, buscaras la ropa y no encontraras nada más que oscuridad, silencio y olor a tierra y humedad, todo a tú alrededor se convierte en una  opresiva prisión. Pero no tan opresiva la necesidad de una caricia, una caricia del sol.
+
 ¿Quién eres? ¿Por qué estás aquí? ¿Qué te ha sucedido?...
-De repente un sonido interrumpe tus reflexiones y rompen el silencio, un lamento se dibuja en la oscuridad.
-Te sientas e intentas recordar.
-Caminas en busca de una salida, palpando la pared pulida de la cueva.
-Te acurrucas en una esquina de la oscura gruta.
-Escuchas intentando descubrir de donde proviene ese ruido.
-Después de unos segundos, descubres que viene del lado izquierdo de lo que parece ser una bifurcación de caminos. Te asalta una duda: ¿hacia dónde ir?
 
-Si decides afrontar el miedo e ir hacia el ruido, escribe 'avanzar 1'.
-Si prefieres alejarte del ruido y tomar el camino de la derecha, escribe 'avanzar 2'.
+De repente un sonido interrumpe tus reflexiones y rompen el silencio, un lamento se dibuja en la oscuridad. 
+
+(1)Te armas de valor y te diriges hacia el lugar de donde provienen los ruidos
+
+(2)Poco a poco tu vista se adapta a la oscuridad y descubres que existe otro pasadizo en sentido contrario al de donde proviene el ruido, decides coger este camino.
+
+[ Escribe 'Avanzar [n]' siendo [n] el número de la opción escogida ]

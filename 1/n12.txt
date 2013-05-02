@@ -1,0 +1,13 @@
+###
+Avanzando por la gruta, te da la sensación de estar descendiendo, de repente una débil luz fluorescente inunda y acaricia las paredes de roca pulida, el silencio y la oscuridad sin disipados por las gotas que parecen filtrarse entre la roca y golpean el accidentado suelo.
+
+La humedad, el frio y el calor que se desprende tu piel se mezclan haciendo surgir de tu cuerpo un aura de calor, un calor que se escapa. Frotas tus brazos, tus piernas, con la vana intención de entrar en calor, pero conforme avanzas el frio y la humedad te devoran sin compasión.
+
+El sonido del fluir de las gotas dan paso a un torrente, el torrente de un rio iluminado por la luz fluorescente que inunda la caverna. Al observar detenidamente descubres que la luz fría y fluorescente proviene de las setas y hongos que colonizan las paredes de la gruta.
+
+A ambos lados dos pasarelas custodian el caudaloso y enérgico rio subterráneo, ajeno a las leyes de la física. La corriente parece ascender en vez de ir a favor de la gravedad.
+
+(1) Desciendes por la pasarela, en contra de la corriente del extraño rio.
+(2) Asciendes por la pasarela, a favor de la corriente del extraño rio.
+
+[ Escribe 'Avanzar [n]' siendo [n] el número de la opción escogida ]
